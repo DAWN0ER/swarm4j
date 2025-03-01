@@ -5,16 +5,18 @@ import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.common.Message;
+import com.alibaba.dashscope.exception.InputRequiredException;
+import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.tools.ToolFunction;
 import com.alibaba.dashscope.tools.*;
 import com.google.gson.JsonObject;
 import io.reactivex.Flowable;
-import lombok.SneakyThrows;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import priv.dawn.swarm.api.BaseAgentClient;
 import priv.dawn.swarm.common.*;
 import priv.dawn.swarm.enums.Roles;
+import priv.dawn.swarm.exceptions.ModelCallException;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,13 +41,19 @@ public class DashScopeClient extends BaseAgentClient {
     }
 
     @Override
-    @SneakyThrows
-    protected ModelResponse modelCall(Agent agent, List<AgentMessage> messages){
+    protected ModelResponse modelCall(Agent agent, List<AgentMessage> messages) {
 
         log.debug("DashScopeClient#modelCall: Agent name:{}, messages:{}", agent.getName(), gson.toJson(messages));
 
-        GenerationParam param = buildParam(agent, messages,false);
-        GenerationResult result = service.call(param);
+        GenerationParam param = buildParam(agent, messages, false);
+        GenerationResult result;
+        try {
+            result = service.call(param);
+        } catch (NoApiKeyException e) {
+            throw new ModelCallException("ApiKey不存在或异常", e);
+        } catch (InputRequiredException e) {
+            throw new ModelCallException("请求参数异常", e);
+        }
         GenerationOutput.Choice choice = result.getOutput().getChoices().get(0);
         Message message = choice.getMessage();
         String finishReason = choice.getFinishReason();
@@ -81,17 +89,23 @@ public class DashScopeClient extends BaseAgentClient {
     }
 
     @Override
-    @SneakyThrows
     protected Flowable<ModelResponse> modelStreamCall(Agent agent, List<AgentMessage> messages) {
 
-        log.debug("DashScopeClient#modelStreamCall agent name:{}, messages:{}",agent.getName(), gson.toJson(messages));
+        log.debug("DashScopeClient#modelStreamCall agent name:{}, messages:{}", agent.getName(), gson.toJson(messages));
 
-        GenerationParam param = buildParam(agent, messages,true);
-        Flowable<GenerationResult> streamCall = service.streamCall(param);
+        GenerationParam param = buildParam(agent, messages, true);
+        Flowable<GenerationResult> streamCall;
+        try {
+            streamCall = service.streamCall(param);
+        } catch (NoApiKeyException e) {
+            throw new ModelCallException("ApiKey不存在或异常", e);
+        } catch (InputRequiredException e) {
+            throw new ModelCallException("请求参数异常", e);
+        }
         return streamCall.map(this::streamCall2Rsp);
     }
 
-    private GenerationParam buildParam(Agent agent, List<AgentMessage> messages,boolean stream) {
+    private GenerationParam buildParam(Agent agent, List<AgentMessage> messages, boolean stream) {
         List<Message> sendMsgList = messages.stream().map(this::buildMsg).collect(Collectors.toList());
         return GenerationParam.builder()
                 .messages(sendMsgList)
@@ -158,27 +172,27 @@ public class DashScopeClient extends BaseAgentClient {
         }).collect(Collectors.toList());
     }
 
-    private ModelResponse streamCall2Rsp(GenerationResult streamCall){
+    private ModelResponse streamCall2Rsp(GenerationResult streamCall) {
 
         ModelResponse response = new ModelResponse();
         GenerationOutput.Choice choice = streamCall.getOutput().getChoices().get(0);
-        if(Objects.isNull(choice)){
+        if (Objects.isNull(choice)) {
             response.setType(ModelResponse.Type.DUPLICATED.code);
             return response;
         }
         Message message = choice.getMessage();
-        if(Objects.nonNull(message.getContent())){
+        if (Objects.nonNull(message.getContent())) {
             response.setContent(message.getContent());
         }
         // 处理 tool_calls
-        if(Objects.nonNull(message.getToolCalls()) && !message.getToolCalls().isEmpty()){
+        if (Objects.nonNull(message.getToolCalls()) && !message.getToolCalls().isEmpty()) {
             List<ToolCallBase> calls = message.getToolCalls();
             ToolCallRequest myCall = new ToolCallRequest();
             // 目前来说，每次也就调用一个 function
-            calls.forEach(call->{
+            calls.forEach(call -> {
                 ToolCallFunction toolCallFunc = (ToolCallFunction) call;
                 myCall.setCallId(toolCallFunc.getId());
-                if(Objects.nonNull(toolCallFunc.getFunction())){
+                if (Objects.nonNull(toolCallFunc.getFunction())) {
                     ToolCallFunction.CallFunction function = toolCallFunc.getFunction();
                     myCall.setName(function.getName());
                     myCall.setJsonParam(function.getArguments());
