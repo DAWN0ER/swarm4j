@@ -71,10 +71,10 @@ public class OpenAIClient extends BaseAgentClient {
             }
             log.debug("OpenAIClient#modelCall: response:{}", response);
             return response;
-        } catch (JsonProcessingException e){
-            throw new ModelCallException("Json 解析异常",e);
-        } catch (Exception e){
-            throw new ModelCallException("未知异常",e);
+        } catch (JsonProcessingException e) {
+            throw new ModelCallException("Json 解析异常", e);
+        } catch (Exception e) {
+            throw new ModelCallException("未知异常", e);
         }
     }
 
@@ -87,10 +87,10 @@ public class OpenAIClient extends BaseAgentClient {
             ChatCompletionRequest chatCompletionRequest = buildParam(agent, messages);
             Flowable<ChatCompletionChunk> orgFlowable = service.streamChatCompletion(chatCompletionRequest);
             return orgFlowable.map(this::chatChunk2Rsp);
-        } catch (JsonProcessingException e){
-            throw new ModelCallException("Json解析异常",e);
-        } catch (Exception e){
-            throw new ModelCallException("未知异常",e);
+        } catch (JsonProcessingException e) {
+            throw new ModelCallException("Json解析异常", e);
+        } catch (Exception e) {
+            throw new ModelCallException("未知异常", e);
         }
     }
 

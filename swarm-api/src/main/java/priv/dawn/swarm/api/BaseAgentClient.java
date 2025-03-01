@@ -33,7 +33,6 @@ public abstract class BaseAgentClient implements AgentClient {
 
     protected String apiKey;
     protected String baseUrl;
-    // TODO 临时使用的单线程池，后续提供其他配置
     protected ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
     protected abstract ModelResponse modelCall(Agent agent, List<AgentMessage> messages) throws ModelCallException;

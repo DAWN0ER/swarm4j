@@ -1,5 +1,6 @@
 package priv.dawn.swarm.common;
 
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -60,7 +61,10 @@ public class ModelResponse {
 
     public enum Type {
         STREAM(0),
-        DUPLICATED(-2), /** 用于标记其他 jdk 中 stream call 时不需要的消息 **/
+        DUPLICATED(-2),
+        /**
+         * 用于标记其他 jdk 中 stream call 时不需要的消息
+         **/
         FINISH(1),
         TOOL_CALL(2),
         OVER_LENGTH(-1),
@@ -79,7 +83,7 @@ public class ModelResponse {
      * @param response stream 中携带新字段的
      */
     public void coverFiledWith(ModelResponse response) {
-        if (Objects.isNull(response) || response.getType()==Type.DUPLICATED.code) {
+        if (Objects.isNull(response) || response.getType() == Type.DUPLICATED.code) {
             return;
         }
         if (response.getType() != Type.STREAM.code) {
@@ -98,7 +102,7 @@ public class ModelResponse {
     }
 
     private void coverCallWith(List<ToolCallRequest> refCalls) {
-        if (Objects.isNull(this.calls)){
+        if (Objects.isNull(this.calls)) {
             this.calls = new ArrayList<>(refCalls.size());
         }
         while (refCalls.size() > this.calls.size()) {
@@ -111,14 +115,14 @@ public class ModelResponse {
                 continue;
             }
             ToolCallRequest ownCall = this.calls.get(idx);
-            if(StringUtils.isNotEmpty(call.getCallId())){
+            if (StringUtils.isNotEmpty(call.getCallId())) {
                 ownCall.setCallId(call.getCallId());
             }
-            if(StringUtils.isNotEmpty(call.getName())){
+            if (StringUtils.isNotEmpty(call.getName())) {
                 ownCall.setName(call.getName());
             }
             if (StringUtils.isNotEmpty(call.getJsonParam())) {
-                if(Objects.isNull(ownCall.getJsonParam())){
+                if (Objects.isNull(ownCall.getJsonParam())) {
                     ownCall.setJsonParam(call.getJsonParam());
                 } else {
                     String temp = ownCall.getJsonParam();

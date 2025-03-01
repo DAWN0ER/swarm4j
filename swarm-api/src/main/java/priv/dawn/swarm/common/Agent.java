@@ -52,11 +52,11 @@ public class Agent {
         return parallelToolCalls;
     }
 
-    public static AgentBuilder builder(){
+    public static AgentBuilder builder() {
         return new AgentBuilder();
     }
 
-    public static class AgentBuilder{
+    public static class AgentBuilder {
 
         private String name = "Agent";
         private String model = null;

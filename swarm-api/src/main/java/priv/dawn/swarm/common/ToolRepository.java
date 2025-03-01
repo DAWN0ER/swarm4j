@@ -152,10 +152,10 @@ public class ToolRepository {
             if (isDefine) {
                 paramJson = this.defineSchema;
             } else if (MapUtils.isNotEmpty(params)) {
-                HashMap<String,Object> schema = new HashMap<>(4,1f);
-                schema.put("type","object");
-                schema.put("properties",params);
-                schema.put("required",requires);
+                HashMap<String, Object> schema = new HashMap<>(4, 1f);
+                schema.put("type", "object");
+                schema.put("properties", params);
+                schema.put("required", requires);
                 paramJson = new Gson().toJson(schema);
             }
             ToolFunction tool = new ToolFunction(name, paramJson, desc, function);
