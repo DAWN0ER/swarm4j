@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import priv.dawn.swarm.common.*;
 import priv.dawn.swarm.enums.Roles;
+import priv.dawn.swarm.exceptions.ModelCallException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.concurrent.Executors;
 
 public abstract class BaseAgentClient implements AgentClient {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final Gson gson = new Gson();
 
     protected String apiKey;
@@ -35,9 +36,9 @@ public abstract class BaseAgentClient implements AgentClient {
     // TODO 临时使用的单线程池，后续提供其他配置
     protected ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
-    protected abstract ModelResponse modelCall(Agent agent, List<AgentMessage> messages);
+    protected abstract ModelResponse modelCall(Agent agent, List<AgentMessage> messages) throws ModelCallException;
 
-    protected abstract Flowable<ModelResponse> modelStreamCall(Agent agent, List<AgentMessage> messages);
+    protected abstract Flowable<ModelResponse> modelStreamCall(Agent agent, List<AgentMessage> messages) throws ModelCallException;
 
     public BaseAgentClient(String apiKey, String baseUrl) {
         this.apiKey = apiKey;
