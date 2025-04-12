@@ -155,10 +155,10 @@ public class DashScopeClient extends BaseAgentClient {
         List<String> nameList = agent.getFunctions().getNameList();
         return nameList.stream().map(name -> {
             priv.dawn.swarm.common.ToolFunction tool = agent.getFunctions().getTool(name);
-            String parameters = tool.getParameters();
+            String parameters = tool.getParameterSchema();
             String description = tool.getDescription();
             JsonObject param = null;
-            if (StringUtils.isBlank(parameters)) {
+            if (StringUtils.isNotBlank(parameters)) {
                 param = gson.fromJson(parameters, JsonObject.class);
             }
             return (ToolBase) ToolFunction.builder()

@@ -69,7 +69,7 @@ public class OpenAIClient extends BaseAgentClient {
                     }
                     response.setCalls(calls);
             }
-            log.debug("OpenAIClient#modelCall: response:{}", response);
+            log.debug("OpenAIClient#modelCall: response:{}", gson.toJson(response));
             return response;
         } catch (JsonProcessingException e) {
             throw new ModelCallException("Json 解析异常", e);
@@ -171,7 +171,7 @@ public class OpenAIClient extends BaseAgentClient {
             chatTools.add(new ChatTool(FunctionDefinition.builder()
                     .name(name)
                     .description(tool.getDescription())
-                    .parametersDefinition(tool.getParameters())
+                    .parametersDefinition(tool.getParameterSchema())
                     .build())
             );
         }

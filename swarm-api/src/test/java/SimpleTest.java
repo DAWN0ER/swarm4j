@@ -24,7 +24,7 @@ public class SimpleTest {
                 .addArrayParam("PA1", "数组参数", ParamType.INTEGER, true)
                 .register();
         ToolFunction tool = repository.getTool("Fn_1");
-        System.out.println(tool.getParameters());
+        System.out.println(tool.getParameterSchema());
     }
 
 }

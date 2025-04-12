@@ -13,14 +13,14 @@ import priv.dawn.swarm.api.CallableFunction;
 public class ToolFunction {
 
     private final String name;
-    private final String parameters;
+    private final String parameterSchema;
     private final String description;
 
     private final CallableFunction callableFunction;
 
-    public ToolFunction(String name, String parameters, String description, CallableFunction callableFunction) {
+    public ToolFunction(String name, String parameterSchema, String description, CallableFunction callableFunction) {
         this.name = name;
-        this.parameters = parameters;
+        this.parameterSchema = parameterSchema;
         this.description = description;
         this.callableFunction = callableFunction;
     }
@@ -29,8 +29,8 @@ public class ToolFunction {
         return name;
     }
 
-    public String getParameters() {
-        return parameters;
+    public String getParameterSchema() {
+        return parameterSchema;
     }
 
     public String getDescription() {
